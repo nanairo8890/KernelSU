@@ -168,6 +168,11 @@ static int apply_kernelsu_rules_fn(void *ptr)
 	ksu_allow(db, "domain", KERNEL_SU_DOMAIN, "unix_stream_socket", "getopt");
 	ksu_allow(db, "domain", KERNEL_SU_DOMAIN, "unix_stream_socket", "getattr");
 
+#ifdef CONFIG_KSU_SUSFS
+	// Let zygote umount hidden mounts without installing zygisk
+	ksu_allow(db, "zygote", "labeledfs", "filesystem", "unmount");
+#endif
+
 	return 0;
 }
 
@@ -198,6 +203,9 @@ void apply_kernelsu_rules()
 	ksu_destroy_sepolicy(old_pol);
 
 	reset_avc_cache(pol->latest_granting);
+#ifdef CONFIG_KSU_SUSFS
+	susfs_set_batch_sid();
+#endif
 out_unlock:
 	mutex_unlock(&selinux_state.policy_mutex);
 #else
@@ -233,6 +241,9 @@ do_stop_machine:
 out_flush:
 	smp_mb();
 	reset_avc_cache(get_latest_granting_inc());
+#ifdef CONFIG_KSU_SUSFS
+	susfs_set_batch_sid();
+#endif
 #endif
 }
 

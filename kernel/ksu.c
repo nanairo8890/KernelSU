@@ -139,6 +139,10 @@
 #include "feature/shell_su_adb_only.c"
 #include "feature/sucompat.c"
 #include "feature/sulog.c"
+
+#ifdef CONFIG_KSU_SUSFS
+#include "extension/susfs.c"
+#endif
 #include "runtime/boot_event.c"
 #include "runtime/ksud_integration.c"
 
